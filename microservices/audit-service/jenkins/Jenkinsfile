@@ -27,7 +27,7 @@ podTemplate(
             checkout scm
             commitId = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
         }
-        def projectId = 'reliable-mender-285316-6d6cf124c79c'
+        def projectId = 'reliable-mender-285316'
     
         stage ('Build') {
             container ('docker') {
