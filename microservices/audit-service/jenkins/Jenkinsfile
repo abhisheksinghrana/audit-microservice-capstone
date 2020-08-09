@@ -31,7 +31,7 @@ podTemplate(
     
         stage ('Build') {
             container ('docker') {
-                def dockerImage = docker.build("${projectId}/audit", "./microservices/audit")
+                def dockerImage = docker.build("${projectId}/audit", "./microservices/audit-service")
                 
                 docker.withRegistry('https://us.gcr.io', "gcr:${projectId}") {
                     
@@ -42,7 +42,7 @@ podTemplate(
         
         stage ('Deployment') {
             container ('kubectl') {
-                 sh("kubectl apply -f ./microservices/audit/audit-service.yaml")
+                 sh("kubectl apply -f ./microservices/audit-service/deployment/deployment.yaml")
             }
         }
     }
