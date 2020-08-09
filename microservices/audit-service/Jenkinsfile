@@ -1,92 +1,49 @@
-pipeline {
-    agent any
-    stages {
-        stage('Installing YARN dependencies') {
-            steps {
-                sh 'yarn install'
+podTemplate(
+    label: 'cd-jenkins-jenkins-slave', 
+    containers: [ 
+        containerTemplate(
+            name: 'docker', 
+            image: 'docker:18.02',
+            ttyEnabled: true,
+            command: 'cat'
+        ),
+        containerTemplate(
+            name: 'kubectl', 
+            image: 'us.gcr.io/cloud-builders/kubectl',
+            ttyEnabled: true,
+            command: 'cat'
+        ),
+    ],
+    volumes: [
+        hostPathVolume(
+            hostPath: '/var/run/docker.sock',
+            mountPath: '/var/run/docker.sock'
+        )
+    ]
+) {
+    node('cd-jenkins-jenkins-slave') {
+        def commitId
+        stage ('Checkout') {
+            checkout scm
+            commitId = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+        }
+        def projectId = 'reliable-mender-285316-6d6cf124c79c'
+    
+        stage ('Build') {
+            container ('docker') {
+                def dockerImage = docker.build("${projectId}/audit", "./microservices/audit")
+                
+                docker.withRegistry('https://us.gcr.io', "gcr:${projectId}") {
+                    
+                    dockerImage.push('latest')
+                }
             }
         }
-
-        stage('Run Unit Test') {
-            steps {
-                sh 'yarn test'
+        
+        stage ('Deployment') {
+            container ('kubectl') {
+                 sh("kubectl apply -f ./microservices/audit/audit-service.yaml")
             }
         }
-
-        stage('Run Coverage Test') {
-            steps {
-                sh 'yarn test:coverage'
-            }
-        }
-
-        // stage('Run Sonar Analysis') {
-        //     steps {
-        //         sh 'npm run sonar'
-        //     }
-        // }
-
-        // stage('Run Docker Image') {
-        //     steps {
-        //         sh 'docker-compose build'
-        //     }
-        // }
-
-        // stage('Upload Docker Image') {
-        //     steps {
-        //         echo 'Upload docker image to Dockerhub'
-        //     }
-        // }
-
-        // stage('Launch Customer Service Application') {
-        //     steps {
-        //         sh 'docker-compose up -d'
-        //     }
-        // }
-
-        // stage('Functional Test') {
-        //     steps {
-        //         echo 'Functional test executed successfully'
-        //     }
-        // }
-
-        // stage('Performance Test') {
-        //     steps {
-        //         echo 'Performance test executed successfully'
-        //     }
-        // }
-
-        // stage('Security Test') {
-        //     steps {
-        //         echo 'Security test executed successfully'
-        //     }
-        // }
-        // stage('Destroy Customer Service Application') {
-        //     steps {
-        //         sh 'docker-compose down'
-        //     }
-        // }
-
-        // stage('Upload the docker image to Google container repository'){
-        //     steps {
-        //         sh 'gcloud builds submit --tag gcr.io/kuberenetes-01-basic/customer-service:1.0 .'
-        //     }
-        // }
-
-        // stage('Launch Mongodb service'){
-        //     steps {
-        //         sh 'kubectl create -f mongodb.yaml'
-        //     }
-        // }
-
-        //  stage('Launch Customer service'){
-        //     steps {
-        //         sh 'kubectl create -f customerservice.yaml'
-        //     }
-        //     post {
-        //         always{
-        //             echo 'Smoke Test run successfully'
-        //         }
-        //     }
-        // }
     }
 }
