@@ -9,7 +9,7 @@ podTemplate(
         ),
         containerTemplate(
             name: 'kubectl', 
-            image: 'us.gcr.io/cloud-builders/kubectl',
+            image: 'gcr.io/cloud-builders/kubectl',
             ttyEnabled: true,
             command: 'cat'
         ),
@@ -33,7 +33,7 @@ podTemplate(
             container ('docker') {
                 def dockerImage = docker.build("${projectId}/audit", "./microservices/audit-service")
                 
-                docker.withRegistry('https://us.gcr.io', "gcr:${projectId}") {
+                docker.withRegistry('https://gcr.io', "gcr:${projectId}") {
                     
                     dockerImage.push('latest')
                 }
