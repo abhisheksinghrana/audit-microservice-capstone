@@ -39,11 +39,9 @@ podTemplate(
             }
         }
         stage ('Deployment') {
-            // if(env.BRANCH_NAME === 'master'){
-                container ('kubectl') {
-                    sh("kubectl apply -f ./microservices/audit-service/deployment")
-                }
-            // }
+            container ('kubectl') {
+                 sh("kubectl apply -f ./microservices/audit-service/deployment")
+            }
         }
     }
 }
