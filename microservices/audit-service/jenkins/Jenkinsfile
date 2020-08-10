@@ -27,11 +27,11 @@ podTemplate(
             checkout scm
             commitId = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
         }
-        stage('Test') {
-            steps {
-                sh 'yarn test'
-            }
-        }
+        // stage('Test') {
+        //     steps {
+        //         sh 'yarn test'
+        //     }
+        // }
         def projectId = 'reliable-mender-285316'
         stage ('Build') {
             container ('docker') {
