@@ -233,6 +233,7 @@ master:
     - configuration-as-code:1.41
     - docker-workflow
     - google-container-registry-auth
+    - blueocean:1.23.2
 
   # List of plugins to install in addition to those listed in master.installPlugins
   additionalPlugins: []

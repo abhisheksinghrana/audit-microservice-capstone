@@ -44,10 +44,7 @@ podTemplate(
             }
         }
         stage ('Deployment') {
-            when {
-                branch 'master'  
-            }
-            steps {
+            if(env.BRANCH_NAME === 'master'){
                 container ('kubectl') {
                     sh("kubectl apply -f ./microservices/audit-service/deployment")
                 }
