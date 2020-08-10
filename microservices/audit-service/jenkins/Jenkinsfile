@@ -27,8 +27,12 @@ podTemplate(
             checkout scm
             commitId = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
         }
+        stage('Test') {
+            steps {
+                sh 'yarn test'
+            }
+        }
         def projectId = 'reliable-mender-285316'
-    
         stage ('Build') {
             container ('docker') {
                 def dockerImage = docker.build("${projectId}/audit", "./microservices/audit-service")
@@ -39,10 +43,14 @@ podTemplate(
                 }
             }
         }
-        
         stage ('Deployment') {
-            container ('kubectl') {
-                 sh("kubectl apply -f ./microservices/audit-service/deployment")
+            when {
+                branch 'master'  
+            }
+            steps {
+                container ('kubectl') {
+                    sh("kubectl apply -f ./microservices/audit-service/deployment")
+                }
             }
         }
     }
